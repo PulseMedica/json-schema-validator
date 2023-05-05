@@ -1,3 +1,25 @@
 build*/
 *.sw?
 
+#python
+**/__pycache__/*
+
+build/
+output/
+
+node_modules/
+/bin/
+/include/
+/lib/
+/docs/*
+!/docs/Doxyfile.in
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+
+data/
+Debug/
+Release/
+
+cmake-build/

@@ -1,0 +1,25 @@
+{
+  "name": "@pulsemedica/json-schema-validator",
+  "version": "1.0.0",
+  "description": "Json schema validator library from github",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PulseMedica/json-schema-validator.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PulseMedica/json-schema-validator/issues"
+  },
+  "homepage": "https://github.com/PulseMedica/json-schema-validator#readme",
+  "dependencies": {
+    "@pulsemedica/json": "3.10.3-rc2"
+  }
+}

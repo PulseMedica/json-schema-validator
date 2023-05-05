@@ -1,0 +1,12 @@
+
+build/
+output/
+.gitignore
+package-lock.json
+data/
+cmake-build/
+tests/
+out/
+main/
+.github/
+.vscode/

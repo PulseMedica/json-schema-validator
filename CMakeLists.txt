@@ -13,7 +13,7 @@ endif()
 
 # the project
 project(nlohmann_json_schema_validator
-        LANGUAGES CXX)
+    LANGUAGES CXX)
 
 set(PROJECT_VERSION 2.2.0)
 
@@ -32,17 +32,17 @@ add_library(nlohmann_json_schema_validator
 
 target_include_directories(nlohmann_json_schema_validator
     PUBLIC
-        $<INSTALL_INTERFACE:include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 
 target_compile_features(nlohmann_json_schema_validator
     PUBLIC
-        cxx_range_for) # for C++11 - flags
+    cxx_range_for) # for C++11 - flags
 
 set_target_properties(nlohmann_json_schema_validator
-                      PROPERTIES
-                          VERSION ${PROJECT_VERSION}
-                          SOVERSION 2)
+    PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION 2)
 
 # disable tests and examples if project is not super project
 if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
@@ -50,34 +50,38 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     set(JSON_VALIDATOR_IS_TOP_LEVEL ON)
 endif()
 
-option(JSON_VALIDATOR_BUILD_TESTS    "Build tests"    ${JSON_VALIDATOR_IS_TOP_LEVEL})
+option(JSON_VALIDATOR_BUILD_TESTS "Build tests" ${JSON_VALIDATOR_IS_TOP_LEVEL})
 option(JSON_VALIDATOR_BUILD_EXAMPLES "Build examples" ${JSON_VALIDATOR_IS_TOP_LEVEL})
 
 if(NOT TARGET nlohmann_json::nlohmann_json)
-    find_package(nlohmann_json REQUIRED)
+    include(macros.cmake)
+    find_node_module(Json FINDJS NODE_MODULE_NAME @pulsemedica/json)
+
+    # find_package(nlohmann_json REQUIRED)
 endif()
 
-target_link_libraries(
+include_directories(
     nlohmann_json_schema_validator
-    PUBLIC nlohmann_json::nlohmann_json)
+    PUBLIC "${Json_INCLUDE_DIR}/../")
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR
-   "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(nlohmann_json_schema_validator
         PRIVATE
-            -Wall -Wextra -Wshadow)
+        -Wall -Wextra -Wshadow)
 endif()
 
 if(BUILD_SHARED_LIBS)
     target_compile_definitions(nlohmann_json_schema_validator
         PRIVATE
-            -DJSON_SCHEMA_VALIDATOR_EXPORTS)
+        -DJSON_SCHEMA_VALIDATOR_EXPORTS)
 endif()
 
 # regex with boost if gcc < 4.9 - default is std::regex
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.9.0")
         find_package(Boost COMPONENTS regex)
+
         if(NOT Boost_FOUND)
             message(STATUS "GCC less then 4.9 and boost-regex NOT found - no regex used")
             target_compile_definitions(nlohmann_json_schema_validator PRIVATE -DJSON_SCHEMA_NO_REGEX)
@@ -92,16 +96,16 @@ endif()
 
 if(JSON_VALIDATOR_INSTALL)
     install(TARGETS nlohmann_json_schema_validator
-            EXPORT ${PROJECT_NAME}Targets
-            LIBRARY DESTINATION lib
-            ARCHIVE DESTINATION lib
-            RUNTIME DESTINATION bin)
+        EXPORT ${PROJECT_NAME}Targets
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin)
 
     install(FILES src/nlohmann/json-schema.hpp
-            DESTINATION include/nlohmann)
+        DESTINATION include/nlohmann)
 endif()
 
-if (JSON_VALIDATOR_BUILD_EXAMPLES)
+if(JSON_VALIDATOR_BUILD_EXAMPLES)
     # simple nlohmann_json_schema_validator-executable
     add_executable(json-schema-validate app/json-schema-validate.cpp)
     target_link_libraries(json-schema-validate nlohmann_json_schema_validator)
@@ -113,17 +117,16 @@ if (JSON_VALIDATOR_BUILD_EXAMPLES)
     target_link_libraries(format-json-schema nlohmann_json_schema_validator)
 
     install(TARGETS json-schema-validate readme-json-schema
-            DESTINATION bin)
+        DESTINATION bin)
 endif()
 
-if (JSON_VALIDATOR_BUILD_TESTS)
+if(JSON_VALIDATOR_BUILD_TESTS)
     # test-zone
     enable_testing()
     add_subdirectory(test)
 endif()
 
 # Set Up the Project Targets and Config Files for CMake
-
 if(JSON_VALIDATOR_INSTALL)
     # Set the install path to the cmake config files (Relative, so install works correctly under Hunter as well)
     set(INSTALL_CMAKE_DIR "lib/cmake/${PROJECT_NAME}")
@@ -131,27 +134,27 @@ if(JSON_VALIDATOR_INSTALL)
 
     # Install Targets
     install(EXPORT ${PROJECT_NAME}Targets
-            FILE ${PROJECT_NAME}Targets.cmake
-            DESTINATION "${INSTALL_CMAKE_DIR}")
+        FILE ${PROJECT_NAME}Targets.cmake
+        DESTINATION "${INSTALL_CMAKE_DIR}")
 
     include(CMakePackageConfigHelpers)
     write_basic_package_version_file(
         ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
         VERSION ${PROJECT_VERSION}
         COMPATIBILITY SameMajorVersion
-        )
+    )
 
     configure_package_config_file(
         ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in
         ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
         INSTALL_DESTINATION ${INSTALL_CMAKEDIR_ROOT}/${PROJECT_NAME}
-        )
+    )
 
     install(
         FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-            ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
         DESTINATION
-            ${INSTALL_CMAKE_DIR}
-        )
+        ${INSTALL_CMAKE_DIR}
+    )
 endif()
